@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion | {{ parent() }}{% endblock %}
+
+{% block body %}
+<div class="flex">
+    <div class="mt-10 w-1/6 mx-auto">
+        <form method="post" class="bg-gray-200 flex-col p-8 border rounded-xl">
+
+            {% if app.user %}
+                <div class="mb-4">
+                    Vous êtes connecté en tant que {{ app.user.username }}. <br><a href="{{ path('app_logout') }}">Se déconnecter</a>
+                </div>
+            {% endif %}
+
+            <div class="mb-3 text-center">
+                <h1 class="text-2xl">Connexion</h1>
+            </div>
+
+            {% if error %}
+                <div class="text-red-700 bg-red-200 rounded-xl p-4 mb-4">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+            {% endif %}
+
+            <div class="">
+                <label class="block mb-2" for="inputEmail">Email</label>
+                <input class="w-full block" type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
+            </div>
+            <div class="mt-4">
+                <label class="block mb-2" for="inputPassword">Mot de passe</label>
+                <input class="w-full block" type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
+            </div>
+
+            <input type="hidden" name="_csrf_token"
+                   value="{{ csrf_token('authenticate') }}"
+            >
+
+            <div class="mt-4">
+                <label>
+                    <input id="remember_me" type="checkbox" name="_remember_me"> Se souvenir de moi
+                </label>
+            </div>
+
+            <div class="mt-5 flex justify-center">
+                <button class="bg-gray-500 rounded-md p-3 px-6 text-white" type="submit">
+                    Se connecter
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+
+{% endblock %}
