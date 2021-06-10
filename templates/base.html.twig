@@ -10,11 +10,27 @@
         {{ encore_entry_link_tags('app') }}
     {% endblock %}
 
-    {% block javascripts %}
-        {{ encore_entry_script_tags('app') }}
-    {% endblock %}
+
 </head>
 <body>
+<div class="absolute w-full h-screen bg-gray-900 bg-opacity-90 z-10 hidden" id="form_ajouter_lieu">
+    <div class="w-1/3 h-1/2 rounded-xl bg-gray-200 mx-auto mt-20 p-3">
+        <div class="flex justify-between">
+            <div>
+                <p class="text-xl">Créer un nouveau lieu</p>
+            </div>
+            <div id="form_close" class="cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </div>
+        </div>
+        {% include 'form/form.html.twig' %}
+    </div>
+
+
+</div>
+
 <header class="pb-5">
     <nav class="flex justify-between px-5 pt-4 items-center">
         <div>
@@ -25,7 +41,7 @@
         </div>
         <div>
             {% if app.user %}
-                <a class="px-5" href="{{ path('sortie_create') }}">Créer une sortie</a>
+                <a class="px-5" href="{{ path('sortie_creer') }}">Créer une sortie</a>
                 <a class="px-5" href="{{ path('profil_dashboard') }}">Profil</a>
                 <a href="{{ path('app_logout') }}">Déconnexion</a>
             {% else %}
@@ -34,12 +50,27 @@
 
 
         </div>
-
-
     </nav>
 </header>
 <hr>
 
+
+
+
+{# read and display all flash messages #}
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="{% if label == 'notice' %} bg-red-400 {% elseif label == 'success' %} bg-green-600 {% else %} bg-gray-200 {% endif%} w-5/6 mx-auto p-4 border rounded-xl mt-5">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endfor %}
+
+
 {% block body %}{% endblock %}
+
+{% block javascripts %}
+    {{ encore_entry_script_tags('app') }}
+{% endblock %}
 </body>
 </html>

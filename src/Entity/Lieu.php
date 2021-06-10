@@ -6,6 +6,8 @@ use App\Repository\LieuRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=LieuRepository::class)
@@ -21,17 +23,23 @@ class Lieu
 
     /**
      * @ORM\Column(type="string", length=100)
+     * @Assert\NotBlank()
+     * @Assert\Length(max=100)
      */
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank()
+     * @Assert\Length(max=255)
      */
     private $rue;
 
     /**
      * @ORM\ManyToOne(targetEntity=Ville::class, inversedBy="lieux")
      * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotBlank()
+     * @Ignore
      */
     private $ville;
 
@@ -47,6 +55,7 @@ class Lieu
 
     /**
      * @ORM\OneToMany(targetEntity=Sortie::class, mappedBy="lieu")
+     * @Ignore
      */
     private $sorties;
 

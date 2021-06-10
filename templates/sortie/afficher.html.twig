@@ -1,0 +1,184 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+{{ sortie.nom }} | {{ parent() }}
+{% endblock %}
+
+{% block body %}
+    <div class="flex w-full items-center justify-center">
+        <div class="mt-5 w-2/3 mx-auto">
+            <div class="bg-gray-200 flex-col p-4 border rounded-xl mt-5">
+                <h1 class="text-3xl">{{ sortie.nom }}</h1>
+
+                <div class="flex flex-wrap">
+                    <div class="w-1/2 py-2 items-baseline">
+                        <div class="flex items-center my-2">
+                            <div class="mb-1 w-1/3">
+                                Nom
+                            </div>
+                            {{ sortie.nom }}
+                        </div>
+                        <div class="flex items-baseline my-2">
+                            <div class="mb-1 w-1/3">
+                                Heure de début
+                            </div>
+                            {{ sortie.dateHeureDebut|format_datetime('short', 'short', locale='fr') }}
+                        </div>
+                        <div class="flex items-baseline my-2">
+                            <div class="mb-1 w-1/3">
+                                Date limite d'inscription
+                            </div>
+                            {{ sortie.dateLimiteInscription|format_datetime('short', 'none', locale='fr') }}
+                        </div>
+                        <div class="flex items-baseline my-2">
+                            <div class="mb-1 w-1/3">
+                                Nombre de places
+                            </div>
+                            {{ sortie.nbInscriptionsMax }}
+                        </div>
+                        <div class="flex items-baseline my-2">
+                            <div class="mb-1 w-1/3">
+                                Durée
+                            </div>
+                            {{ sortie.duree }} minutes
+                        </div>
+                        <div class="flex items-baseline my-2">
+                            <div class="mb-1 w-1/3">
+                                Informations
+                            </div>
+                            {{  sortie.infos }}
+                        </div>
+
+                    </div>
+                    <div class="w-1/2 p-2 items-baseline">
+                        <div class="flex items-center my-2">
+                            <div class="mb-1 w-1/3">
+                                Campus
+                            </div>
+                            {{ sortie.campusOrganisateur.nom }}
+                        </div>
+                        <div class="flex items-baseline my-2">
+                            <div class="mb-1 w-1/3">
+                                Ville
+                            </div>
+                            {{ sortie.lieu.ville.nom }}
+                        </div>
+                        <div class="flex items-baseline my-2">
+                            <div class="mb-1 w-1/3">
+                                Lieu
+                            </div>
+                            {{ sortie.lieu.nom }}
+                        </div>
+                        <div class="flex items-baseline my-2">
+                            <div class="mb-1 w-1/3">
+                                Rue
+                            </div>
+                            <div>
+                                {{ sortie.lieu.rue }}
+                            </div>
+                        </div>
+                        <div class="flex items-baseline my-2">
+                            <div class="mb-1 w-1/3">
+                                Code postal
+                            </div>
+                            <div>
+                                {{ sortie.lieu.ville.codePostal }}
+                            </div>
+
+                        </div>
+                        <div class="flex items-baseline my-2">
+                            <div class="mb-1 w-1/3">
+                                Latitude
+                            </div>
+                            <div>
+                                {{ sortie.lieu.latitude }}
+                            </div>
+                        </div>
+                        <div class="flex items-baseline my-2">
+                            <div class="mb-1 w-1/3">
+                                Longitude
+                            </div>
+                            <div>
+                                {{ sortie.lieu.longitude }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    {% if app.user.id == sortie.organisateur.id %}
+                        {% if sortie.etat.libelle == 'Créée' %}
+                            <a href="#">
+                                <button class="bg-gray-500 rounded-md p-3 px-6 text-white" type="button">
+                                    Publier
+                                </button>
+                            </a>
+                            <a href="{{ path('sortie_modifier', {'id': sortie.id}) }}">
+                                <button class="bg-gray-500 rounded-md p-3 px-6 text-white" type="button">
+                                    Modifier
+                                </button>
+                            </a>
+                            <a href="#">
+                                <button class="bg-gray-500 rounded-md p-3 px-6 text-white" type="button">
+                                    Supprimer
+                                </button>
+                            </a>
+                        {% else %}
+                            <a href="#">
+                                <button class="bg-gray-500 rounded-md p-3 px-6 text-white" type="button">
+                                    Annuler
+                                </button>
+                            </a>
+                        {% endif %}
+                    {% endif %}
+
+
+
+                    {% if sortie.etat.libelle == 'Ouverte' %}
+                        {% if sortie.participants.count == 0 %}
+                            <a href="{{ path('sortie_inscription', {'id': sortie.id}) }}">
+                                <button class="bg-gray-500 rounded-md p-3 px-6 text-white" type="button">
+                                    S'inscrire
+                                </button>
+                            </a>
+                        {% else %}
+                            {% for participant in sortie.participants %}
+                                {% if participant.id != app.user.id %}
+                                    <a href="{{ path('sortie_inscription', {'id': sortie.id}) }}">
+                                        <button class="bg-gray-500 rounded-md p-3 px-6 text-white" type="button">
+                                            S'inscrire
+                                        </button>
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    {% endif %}
+
+                    {% if sortie.etat.libelle == 'Ouverte' %}
+                        {% for participant in sortie.participants %}
+                            {% if participant.id == app.user.id %}
+                                <a href="{{ path('sortie_desinscription', {'id': sortie.id}) }}">
+                                    <button class="bg-gray-500 rounded-md p-3 px-6 text-white" type="button">
+                                        Se désister
+                                    </button>
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+
+                </div>
+                {% if sortie.participants.count > 0 %}
+                <div class="mt-5">
+                    <h2 class="text-xl">Liste des participants inscrits</h2>
+                    <ul class="list-disc">
+                        {% for participant in sortie.participants %}
+                        <li class="ml-5">
+                            {{ participant.prenom }} {{ participant.nom }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

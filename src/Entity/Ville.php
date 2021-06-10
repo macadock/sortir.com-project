@@ -6,6 +6,7 @@ use App\Repository\VilleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
 
 /**
  * @ORM\Entity(repositoryClass=VilleRepository::class)
@@ -30,7 +31,8 @@ class Ville
     private $codePostal;
 
     /**
-     * @ORM\OneToMany(targetEntity=Lieu::class, mappedBy="ville")
+     * @ORM\OneToMany(targetEntity=Lieu::class, mappedBy="ville")`
+     * @Ignore
      */
     private $lieux;
 
@@ -71,7 +73,7 @@ class Ville
     /**
      * @return Collection|Lieu[]
      */
-    public function getlieux(): Collection
+    public function getLieux(): Collection
     {
         return $this->lieux;
     }

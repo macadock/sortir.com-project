@@ -40,6 +40,6 @@ security:
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/login, roles:  }
+        - { path: ^/api, roles:  }
         - { path: ^/, roles: ROLE_USER }
         - { path: ^/profil, roles: ROLE_USER }
-

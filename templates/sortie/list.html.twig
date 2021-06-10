@@ -11,7 +11,7 @@
                 </h1>
             </div>
             {{ form_start(sortieFilterForm) }}
-            <div class="my-2">
+            <div class="my-2 font-bold">
                 Filtrer les sorties
             </div>
             <div class="flex flex-row">
@@ -81,14 +81,50 @@
                 {% for sortie in sorties %}
 
                     <tr {% if loop.index % 2 == 0 %}class="bg-gray-200 hover:bg-gray-100"{% else %}class="bg-white hover:bg-gray-100"{% endif %}>
-                        <td class="border-2">{{ sortie.nom }}</td>
+                        <td class="border-2"><a href="{{ path('sortie_afficher', {'id': sortie.id}) }}" class="hover:text-blue-800 underline">{{ sortie.nom }}</a></td>
                         <td class="border-2">{{ sortie.dateHeureDebut|format_datetime('short', 'short', locale='fr')  }}</td>
                         <td class="border-2">{{ sortie.dateLimiteInscription|format_datetime('short', 'none', locale='fr') }}</td>
-                        <td class="border-2">x/{{ sortie.nbInscriptionsMax }}</td>
+                        <td class="border-2">{{ sortie.participants|length }}/{{ sortie.nbInscriptionsMax }}</td>
                         <td class="border-2">{{ sortie.etat.libelle }}</td>
-                        <td class="border-2"></td>
+                        <td class="border-2">
+                            {% for participant in sortie.participants %}
+                                {% if participant.id == app.user.id %}
+                                    X
+                                {% endif %}
+                            {% endfor %}
+                        </td>
                         <td class="border-2">{{ sortie.organisateur.prenom }} {% if sortie.organisateur.nom %}{{ sortie.organisateur.nom|first }}.{% endif %}</td>
-                        <td class="border-2"></td>
+                        <td class="border-2">
+                            {% if sortie.etat.libelle == 'Ouverte' %}
+                                {% if sortie.participants.count == 0 %}
+                                    <a href="{{ path('sortie_inscription', {'id': sortie.id}) }}" class="hover:text-blue-800">S'inscrire</a>
+                                {% else %}
+                                    {% for participant in sortie.participants %}
+                                        {% if participant.id != app.user.id %}
+                                            <a href="{{ path('sortie_inscription', {'id': sortie.id}) }}" class="hover:text-blue-800">S'inscrire</a>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            {% endif %}
+
+                            {% if sortie.etat.libelle == 'Ouverte' %}
+                                {% for participant in sortie.participants %}
+                                    {% if participant.id == app.user.id %}
+                                        <a href="{{ path('sortie_desinscription', {'id': sortie.id}) }}" class="hover:text-blue-800">Se désister</a>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+
+                            {% if app.user.id == sortie.organisateur.id %}
+                                {% if sortie.etat.libelle == 'Créée' %}
+                                    <a href="#" class="hover:text-blue-800">Publier</a>
+                                    <a href="{{ path('sortie_modifier', {'id': sortie.id}) }}" class="hover:text-blue-800">Modifier</a>
+                                    <a href="#" class="hover:text-blue-800">Supprimer</a>
+                                {% else %}
+                                    <a href="#" class="hover:text-blue-800">Annuler</a>
+                                {% endif %}
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
                     </tbody>

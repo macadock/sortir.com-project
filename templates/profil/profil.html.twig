@@ -2,18 +2,9 @@
 
 {% block title %}Profil | {{ parent() }}{% endblock %}
 
-{% block javascripts %}
-    {{ parent() }}
-    <script>
-        function submitForm() {
-            document.getElementById('form_picture').submit();
-        }
-    </script>
-{% endblock %}
-
 {% block body %}
 
-<div class="flex w-full h-screen items-center justify-center -mt-20">
+<div class="flex w-full items-center justify-center">
     <div class="mt-5 w-2/3 mx-auto">
 
         <div class="bg-gray-200 flex-col p-4 border rounded-xl mt-5">
@@ -116,4 +107,13 @@
 
 </div>
 
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        function submitForm() {
+            document.getElementById('form_picture').submit();
+        }
+    </script>
 {% endblock %}
