@@ -33,6 +33,7 @@ class Ville
     /**
      * @ORM\OneToMany(targetEntity=Lieu::class, mappedBy="ville")`
      * @Ignore
+     * @ORM\OrderBy({"nom" = "ASC"})
      */
     private $lieux;
 

@@ -31,12 +31,19 @@ class SortieRepository extends ServiceEntityRepository
             ->where('s.campusOrganisateur = :campus')
             ->setParameter('campus', $filter->getCampus()->getId())
             ->leftJoin('s.participants', 'p')
+            ->leftJoin('s.etat', 'e')
+            ->andWhere('e.libelle NOT LIKE :libelle')
+            ->setParameter('libelle', 'Créée')
+            ->addSelect('e')
+            ->join('s.organisateur', 'o')
+            ->addSelect('o')
+            ->addSelect('p')
         ;
 
         if (!empty($filter->getQuery())) {
             $query = $query
                 ->andWhere('s.nom LIKE :q')
-                ->setParameter('q', $filter->getQuery())
+                ->setParameter('q', '%'.$filter->getQuery().'%')
             ;
         }
 
@@ -74,15 +81,15 @@ class SortieRepository extends ServiceEntityRepository
         if ($filter->isInscrit() && !$filter->isNotInscrit()) {
 
             $query = $query
-                ->andWhere('p.id = :user')
-                ->setParameter('user', $filter->getUser()->getId())
+                ->andWhere('p = :user')
+                ->setParameter('user', $filter->getUser())
             ;
 
         } elseif ($filter->isNotInscrit() && !$filter->isInscrit()) {
 
             $query = $query
-                ->orWhere('p.id != :user')
-                ->setParameter('user', $filter->getUser()->getId())
+                ->andWhere('p IS NULL OR p <> :user')
+                ->setParameter('user', $filter->getUser())
             ;
 
         }
@@ -90,7 +97,7 @@ class SortieRepository extends ServiceEntityRepository
         if ($filter->isPassed()) {
 
             $query = $query
-                ->orWhere('s.dateHeureDebut < :date')
+                ->andWhere('s.dateHeureDebut < :date')
                 ->setParameter('date', new \DateTime())
             ;
 
@@ -102,6 +109,7 @@ class SortieRepository extends ServiceEntityRepository
         }
 
         return $query
+            ->addOrderBy('s.dateHeureDebut')
             ->getQuery()
             ->getResult()
         ;

@@ -41,6 +41,7 @@
         </div>
         <div>
             {% if app.user %}
+                <p class="inline bg-gray-500 text-white p-2 rounded-xl">Bonjour {{ app.user.prenom }}</p>
                 <a class="px-5" href="{{ path('sortie_creer') }}">Créer une sortie</a>
                 <a class="px-5" href="{{ path('profil_dashboard') }}">Profil</a>
                 <a href="{{ path('app_logout') }}">Déconnexion</a>

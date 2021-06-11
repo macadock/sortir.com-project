@@ -91,7 +91,11 @@
                                 Latitude
                             </div>
                             <div>
-                                {{ sortie.lieu.latitude }}
+                                {% if sortie.lieu.latitude %}
+                                    {{ sortie.lieu.latitude }}
+                                {% else %}
+                                    Non défini
+                                {% endif %}
                             </div>
                         </div>
                         <div class="flex items-baseline my-2">
@@ -99,7 +103,11 @@
                                 Longitude
                             </div>
                             <div>
-                                {{ sortie.lieu.longitude }}
+                                {% if sortie.lieu.longitude %}
+                                    {{ sortie.lieu.longitude }}
+                                {% else %}
+                                    Non défini
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -117,7 +125,7 @@
                                     Modifier
                                 </button>
                             </a>
-                            <a href="#">
+                            <a href="{{ path('sortie_supprimer', {'id': sortie.id}) }}">
                                 <button class="bg-gray-400 rounded-md p-3 px-6 text-white" type="button">
                                     Supprimer
                                 </button>
@@ -135,15 +143,6 @@
 
 
                     {% if sortie.etat.libelle == 'Ouverte' and sortie.dateLimiteInscription >= "now" %}
-                        {% if sortie.participants.count == 0 %}
-                            <a href="{{ path('sortie_inscription', {'id': sortie.id}) }}">
-                                <button class="bg-gray-700 rounded-md p-3 px-6 text-white" type="button">
-                                    S'inscrire
-                                </button>
-                            </a>
-
-                        {% endif %}
-
                         {% set inscrit = false %}
 
                         {% if sortie.etat.libelle == 'Ouverte' %}

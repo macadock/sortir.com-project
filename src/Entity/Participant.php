@@ -37,7 +37,7 @@ class Participant implements UserInterface
     private $password;
 
     /**
-     * @ORM\Column(type="string", length=100, nullable=true)
+     * @ORM\Column(type="string", length=100)
      */
     private $nom;
 

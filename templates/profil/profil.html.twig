@@ -48,42 +48,49 @@
                         <div class="w-1/2 p-2">
                             <div class="px-2 mb-1">
                                 {{ form_label(participantForm.prenom) }}
+                                <p class="text-red-800">{{ form_errors(participantForm.prenom) }}</p>
                             </div>
                             {{ form_widget(participantForm.prenom, {'attr': {'class':'w-full block rounded-xl p-2 h-8'}}) }}
                         </div>
                         <div class="w-1/2 p-2">
                             <div class="px-2 mb-1">
                                 {{ form_label(participantForm.nom) }}
+                                <p class="text-red-800">{{ form_errors(participantForm.nom) }}</p>
                             </div>
                             {{ form_widget(participantForm.nom, {'attr': {'class':'w-full block rounded-xl p-2 h-8'}}) }}
                         </div>
                         <div class="w-1/2 p-2">
                             <div class="px-2 mb-1">
                                 {{ form_label(participantForm.telephone) }}
+                                <p class="text-red-800">{{ form_errors(participantForm.telephone) }}</p>
                             </div>
                             {{ form_widget(participantForm.telephone, {'attr': {'class':'w-full block rounded-xl p-2 h-8'}}) }}
                         </div>
                         <div class="w-1/2 p-2">
                             <div class="px-2 mb-1">
                                 {{ form_label(participantForm.email) }}
+                                <p class="text-red-800">{{ form_errors(participantForm.email) }}</p>
                             </div>
                             {{ form_widget(participantForm.email, {'attr': {'class':'w-full block rounded-xl p-2 h-8'}}) }}
                         </div>
                         <div class="w-1/2 p-2">
                             <div class="px-2 mb-1">
                                 {{ form_label(participantForm.password.first) }}
+                                <p class="text-red-800">{{ form_errors(participantForm.password.first) }}</p>
                             </div>
                             {{ form_widget(participantForm.password.first, {'attr': {'class':'w-full block rounded-xl p-2 h-8'}}) }}
                         </div>
                         <div class="w-1/2 p-2">
                             <div class="px-2 mb-1">
                                 {{ form_label(participantForm.password.second) }}
+                                <p class="text-red-800">{{ form_errors(participantForm.password.second) }}</p>
                             </div>
                             {{ form_widget(participantForm.password.second, {'attr': {'class':'w-full block rounded-xl p-2 h-8'}}) }}
                         </div>
                         <div class="w-1/2 p-2">
                             <div class="px-2 mb-1">
                                 {{ form_label(participantForm.campus) }}
+                                <p class="text-red-800">{{ form_errors(participantForm.campus) }}</p>
                             </div>
                             {{ form_widget(participantForm.campus, {'attr': {'class':'w-full block rounded-xl p-2 h-8'}}) }}
                         </div>

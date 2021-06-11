@@ -97,11 +97,6 @@
                         <td class="border-2">
 
                             {% if sortie.etat.libelle == 'Ouverte' and sortie.dateLimiteInscription >= "now" %}
-                                {% if sortie.participants.count == 0 %}
-                                    <a href="{{ path('sortie_inscription', {'id': sortie.id}) }}" class="hover:text-blue-800">S'inscrire</a>
-
-                                {% endif %}
-
                                 {% set inscrit = false %}
 
                                 {% if sortie.etat.libelle == 'Ouverte' %}
@@ -126,7 +121,7 @@
                                 {% if sortie.etat.libelle == 'Créée' %}
                                     <a href="{{ path('sortie_publier', {'id' : sortie.id}) }}" class="hover:text-blue-800">Publier</a>
                                     <a href="{{ path('sortie_modifier', {'id': sortie.id}) }}" class="hover:text-blue-800">Modifier</a>
-                                    <a href="#" class="hover:text-blue-800">Supprimer</a>
+                                    <a href="{{ path('sortie_supprimer', {'id': sortie.id}) }}" class="hover:text-blue-800">Supprimer</a>
                                 {% endif %}
                                 {% if sortie.etat.libelle == 'Ouverte' or sortie.etat.libelle == 'Clôturée' or sortie.etat.libelle == 'Activité en cours' %}
                                     <a href="{{ path('sortie_annuler', {'id' : sortie.id}) }}" class="hover:text-blue-800">Annuler</a>

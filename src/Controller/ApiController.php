@@ -27,7 +27,7 @@ class ApiController extends AbstractController
 
 
     /**
-     * @Route("/api/{v}/lieux", name="api_getLieuxByVille", requirements={"ville"="\d"}, methods={"GET"})
+     * @Route("/api/{v}/lieux", name="api_getLieuxByVille", requirements={"ville"="\d{1,}"}, methods={"GET"})
      */
     public function getLieuxByVille(VilleRepository $villeRepository, $v): Response
     {
@@ -40,7 +40,7 @@ class ApiController extends AbstractController
     }
 
     /**
-     * @Route("/api/lieu/infos/{l}", name="api_getInformationsByLieu", requirements={"l"="\d"}, methods={"GET"})
+     * @Route("/api/lieu/infos/{l}", name="api_getInformationsByLieu", requirements={"l"="\d{1,}"}, methods={"GET"})
      */
     public function getInformationByLieu(LieuRepository $lieuRepository, $l): Response
     {

@@ -265,12 +265,7 @@ class SortieService
 
     }
 
-    /**
-     * @param Sortie $sortie
-     * @param Participant $user
-     * @param bool $publish: default is draft
-     * @return bool: true equal sortie is well modified
-     */
+
     public function modifier(Sortie $sortie, Participant $user, bool $publish = false):bool {
 
         $result = false;
@@ -309,6 +304,27 @@ class SortieService
                 $etat = $this->etatRepository->findOneBy(['libelle' => self::CANCELED]);
                 $sortie->setEtat($etat);
                 $this->entityManager->persist($sortie);
+                $this->entityManager->flush();
+
+                $result = true;
+
+            }
+
+        }
+
+        return $result;
+
+    }
+
+    public function supprimer(Sortie $sortie, Participant $user): bool {
+
+        $result = false;
+
+        if ($sortie) {
+
+            if ($this->isUserTheOwner($sortie, $user) && $this->isStatusDraft($sortie)) {
+
+                $this->entityManager->remove($sortie);
                 $this->entityManager->flush();
 
                 $result = true;

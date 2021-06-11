@@ -45,7 +45,7 @@ class ProfilController extends AbstractController
                         $this->getParameter('profile_picture_directory'),
                         $newFilename
                     );
-                } catch (FileException $e) {
+                } catch (\Exception $e) {
                     // TODO Gérer erreur sur erreur sur upload
                 }
 

@@ -6,13 +6,11 @@ use App\Entity\Sortie;
 use App\Entity\SortieFilter;
 use App\Form\SortieFilterType;
 use App\Form\SortieType;
-use App\Repository\EtatRepository;
 use App\Repository\LieuRepository;
 use App\Repository\ParticipantRepository;
 use App\Repository\SortieRepository;
 use App\SortieService\SortieService;
 use App\SortieUpdate\SortieUpdate;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -49,7 +47,7 @@ class SortieController extends AbstractController
     }
 
     /**
-     * @Route("/creer", name="sortie_creer")
+     * @Route("/sortie/creer", name="sortie_creer")
      */
     public function creer(Request $request, ParticipantRepository $participantRepository, SortieService $sortieService): Response
     {
@@ -88,7 +86,7 @@ class SortieController extends AbstractController
     }
 
     /**
-     * @Route("/sortie/{id}/modifier", name="sortie_modifier", requirements={"id"="\d"})
+     * @Route("/sortie/{id}/modifier", name="sortie_modifier", requirements={"id"="\d{1,}"})
      */
     public function modifier($id, Request $request, SortieRepository $sortieRepository, LieuRepository $lieuRepository, ParticipantRepository $participantRepository, SortieService $sortieService): Response
     {
@@ -147,19 +145,24 @@ class SortieController extends AbstractController
     }
 
     /**
-     * @Route("/sortie/{id}", name="sortie_afficher", requirements={"id"="\d"})
+     * @Route("/sortie/{id}", name="sortie_afficher", requirements={"id"="\d{1,}"})
      */
     public function afficher($id, SortieRepository $sortieRepository): Response {
 
         $sortie = $sortieRepository->find($id);
 
-        return $this->render('sortie/afficher.html.twig', [
-            'sortie' => $sortie
-        ]);
+        if ($sortie) {
+            return $this->render('sortie/afficher.html.twig', [
+                'sortie' => $sortie
+            ]);
+        }
+
+        throw $this->createNotFoundException();
+
     }
 
     /**
-     * @Route("/sortie/{id}/inscrire", name="sortie_inscription", requirements={"id"="\d"})
+     * @Route("/sortie/{id}/inscrire", name="sortie_inscription", requirements={"id"="\d{1,}"})
      */
     public function inscription($id, SortieRepository $sortieRepository, ParticipantRepository $participantRepository, SortieService $sortieService): Response {
 
@@ -185,7 +188,7 @@ class SortieController extends AbstractController
     }
 
     /**
-     * @Route("/sortie/{id}/desinscrire", name="sortie_desinscription", requirements={"id"="\d"})
+     * @Route("/sortie/{id}/desinscrire", name="sortie_desinscription", requirements={"id"="\d{1,}"})
      */
     public function desinscrire($id, SortieRepository $sortieRepository, ParticipantRepository $participantRepository, SortieService $sortieService): Response
     {
@@ -212,7 +215,7 @@ class SortieController extends AbstractController
     }
 
         /**
-         * @Route("/sortie/{id}/publier", name="sortie_publier", requirements={"id"="\d"})
+         * @Route("/sortie/{id}/publier", name="sortie_publier", requirements={"id"="\d{1,}"})
          */
         public function publier($id, SortieService $sortieService, SortieRepository $sortieRepository, ParticipantRepository $participantRepository): Response {
 
@@ -238,7 +241,7 @@ class SortieController extends AbstractController
         }
 
         /**
-         * @Route("/sortie/{id}/annuler", name="sortie_annuler", requirements={"id"="\d"})
+         * @Route("/sortie/{id}/annuler", name="sortie_annuler", requirements={"id"="\d{1,}"})
          */
         public function annuler($id, SortieService $sortieService, SortieRepository $sortieRepository, ParticipantRepository $participantRepository): Response {
             $sortie = $sortieRepository->find($id);
@@ -262,5 +265,31 @@ class SortieController extends AbstractController
 
 
         }
+
+    /**
+     * @Route("/sortie/{id}/supprimer", name="sortie_supprimer", requirements={"id"="\d{1,}"})
+     */
+    public function supprimer($id, SortieService $sortieService, SortieRepository $sortieRepository, ParticipantRepository $participantRepository): Response {
+
+        $sortie = $sortieRepository->find($id);
+        $participant = $participantRepository->find($this->getUser()->getId());
+
+        if ($sortieService->supprimer($sortie, $participant)) {
+
+            $this->addFlash(
+                'success',
+                'Sortie supprimée !');
+
+            return $this->redirectToRoute('sortie_list');
+
+        }
+
+        $this->addFlash(
+            'notice',
+            'Sortie introuvable');
+
+        return $this->redirectToRoute('sortie_afficher', ['id' => $id]);
+
+    }
 
 }

@@ -7,11 +7,9 @@ use App\Entity\Lieu;
 use App\Entity\Sortie;
 use App\Entity\Ville;
 use App\Repository\VilleRepository;
-use Container6ZhtgTF\getVilleRepositoryService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -81,7 +79,10 @@ class SortieType extends AbstractType
             'choice_label' => 'nom',
             'mapped' => false,
             'placeholder' => 'Choisissez une ville',
-            'data' => $ville
+            'data' => $ville,
+            'query_builder' => function (VilleRepository $villeRepository) {
+                    return $villeRepository->findAll();
+            },
         ]);
 
         $lieux = array();
@@ -102,7 +103,7 @@ class SortieType extends AbstractType
             'choice_label' => 'nom',
             'placeholder' => 'Choisissez un lieu',
             'required' => true,
-            'choices' => $lieux
+            'choices' => $lieux,
         ]);
 
     }
