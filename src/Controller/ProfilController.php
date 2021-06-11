@@ -5,7 +5,9 @@ namespace App\Controller;
 use App\Entity\Participant;
 use App\Form\ProfilPictureType;
 use App\Form\ProfilType;
+use App\Repository\ParticipantRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use phpDocumentor\Reflection\Types\This;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -68,6 +70,33 @@ class ProfilController extends AbstractController
             'participantForm' => $participantForm->createView(),
             'profilePictureForm' => $profilePictureForm->createView(),
         ]);
+    }
+
+    /**
+     * @Route("/profil/{slug}", name="profil_afficher", requirements={"slug"="[a-zA-Z-]{1,}"})
+     */
+    public function afficher($slug, ParticipantRepository $participantRepository): Response
+    {
+        if ($slug == $this->getUser()->getSlug()) {
+
+            return $this->redirectToRoute('profil_dashboard');
+
+        } else {
+
+            $participant = $participantRepository->findOneBy(['slug' => $slug]);
+
+            if ($participant) {
+
+                return $this->render('profil/afficher.html.twig', [
+                    'participant' => $participant
+                ]);
+
+            }
+
+        }
+
+        return $this->redirectToRoute('sortie_list');
+
     }
 
 }

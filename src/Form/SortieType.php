@@ -8,6 +8,7 @@ use App\Entity\Sortie;
 use App\Entity\Ville;
 use App\Repository\VilleRepository;
 use Container6ZhtgTF\getVilleRepositoryService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -25,6 +26,13 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class SortieType extends AbstractType
 {
+
+    private $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager) {
+        $this->entityManager = $entityManager;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -55,27 +63,74 @@ class SortieType extends AbstractType
                 'required' => true,
                 'disabled' => true,
             ])
-            ->add('ville', EntityType::class, [
-                'class' => Ville::class,
-                'choice_label' => 'nom',
-                'mapped' => false,
-                'placeholder' => 'Choisissez une ville'
-            ])
-            ->add('lieu', EntityType::class, [
-                'class' => Lieu::class,
-                'choice_label' => 'nom',
-                'placeholder' => 'Choisissez un lieu',
-                'required' => true,
-            ])
             ->add('save', SubmitType::class, [
                 'label' => 'Enregistrer'
             ])
             ->add('publish', SubmitType::class, [
                 'label' => 'Publier'
-            ])
-        ;
+            ]);
 
-    ;
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, array($this, 'onPreSetData'));
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, array($this, 'onPreSubmit'));
+
+    }
+
+    protected function addElements(FormInterface $form, Ville $ville = null) {
+        $form->add('ville', EntityType::class, [
+            'class' => Ville::class,
+            'choice_label' => 'nom',
+            'mapped' => false,
+            'placeholder' => 'Choisissez une ville',
+            'data' => $ville
+        ]);
+
+        $lieux = array();
+
+        if ($ville) {
+
+            $lieuxRepository = $this->entityManager->getRepository('App:Lieu');
+            $lieux = $lieuxRepository->createQueryBuilder('l')
+                ->where('l.ville = :ville')
+                ->setParameter('ville', $ville)
+                ->getQuery()
+                ->getResult();
+
+        }
+
+        $form->add('lieu', EntityType::class, [
+            'class' => Lieu::class,
+            'choice_label' => 'nom',
+            'placeholder' => 'Choisissez un lieu',
+            'required' => true,
+            'choices' => $lieux
+        ]);
+
+    }
+
+    function onPreSubmit(FormEvent $event) {
+
+        $form = $event->getForm();
+        $data = $event->getData();
+
+        $ville = $this->entityManager->getRepository('App:Ville')->find($data['ville']);
+
+        $this->addElements($form, $ville);
+
+    }
+
+    function onPreSetData(FormEvent $event) {
+
+        $sortie = $event->getData();
+        $form = $event->getForm();
+
+        if ($sortie->getLieu()) {
+            $ville = $sortie->getLieu()->getVille() ? $sortie->getLieu()->getVille() : null;
+        } else {
+            $ville = null;
+        }
+
+        $this->addElements($form, $ville);
+
     }
 
     public function configureOptions(OptionsResolver $resolver)

@@ -47,11 +47,32 @@ class SortieFilter
      */
     private $isPassed;
 
+    /**
+     * @var Participant|null
+     */
+    private $user;
+
     public function __construct() {
         $this->isOrganisateur = false;
         $this->isInscrit = false;
         $this->isNotInscrit = false;
         $this->isPassed = false;
+    }
+
+    /**
+     * @return Participant|null
+     */
+    public function getUser(): ?Participant
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param Participant|null $user
+     */
+    public function setUser(?Participant $user): void
+    {
+        $this->user = $user;
     }
 
     /**

@@ -30,12 +30,13 @@ class SortieRepository extends ServiceEntityRepository
             ->createQueryBuilder('s')
             ->where('s.campusOrganisateur = :campus')
             ->setParameter('campus', $filter->getCampus()->getId())
+            ->leftJoin('s.participants', 'p')
         ;
 
         if (!empty($filter->getQuery())) {
             $query = $query
                 ->andWhere('s.nom LIKE :q')
-                ->setParameter('q', "%{$filter->getQuery()}%")
+                ->setParameter('q', $filter->getQuery())
             ;
         }
 
@@ -55,32 +56,120 @@ class SortieRepository extends ServiceEntityRepository
 
         if ($filter->isOrganisateur()) {
 
-            // TODO Implémenter filtre 'dont je suis l'organisateur'
+            $query = $query
+                ->orWhere('s.organisateur = :user')
+                ->setParameter('user', $filter->getUser())
+                ;
+
+        } else {
+
+            $query = $query
+                ->andWhere('s.organisateur != :user')
+                ->setParameter('user', $filter->getUser())
+            ;
 
         }
 
-        if ($filter->isInscrit()) {
 
-            // TODO Implémenter filtre 'dont je suis inscrit'
+        if ($filter->isInscrit() && !$filter->isNotInscrit()) {
 
-        }
+            $query = $query
+                ->andWhere('p.id = :user')
+                ->setParameter('user', $filter->getUser()->getId())
+            ;
 
-        if ($filter->isNotInscrit()) {
+        } elseif ($filter->isNotInscrit() && !$filter->isInscrit()) {
 
-            // TODO Implémenter filtre 'dont je ne suis pas inscrit'
+            $query = $query
+                ->orWhere('p.id != :user')
+                ->setParameter('user', $filter->getUser()->getId())
+            ;
 
         }
 
         if ($filter->isPassed()) {
 
-            // TODO Implémenter filtre 'sortie passée'
+            $query = $query
+                ->orWhere('s.dateHeureDebut < :date')
+                ->setParameter('date', new \DateTime())
+            ;
 
+        } else {
+            $query = $query
+                ->andWhere('s.dateHeureDebut >= :date')
+                ->setParameter('date', new \DateTime())
+            ;
         }
 
         return $query
             ->getQuery()
             ->getResult()
         ;
+    }
+
+    /**
+     * @return Sortie[] Returns an array of Sortie objects
+     */
+    public function sortiesExpired() {
+        $query = $this
+            ->createQueryBuilder('s')
+            ->where('s.dateHeureDebut < :date')
+            ->setParameter('date', new \DateTime())
+        ;
+
+        return $query
+            ->getQuery()
+            ->getResult();
+    }
+    /**
+     * @return Sortie[] Returns an array of Sortie objects
+     */
+    public function closedInscriptions() {
+        $query = $this
+            ->createQueryBuilder('s')
+            ->leftJoin('s.etat', 'e')
+            ->where('s.dateLimiteInscription <= :date')
+            ->setParameter('date', new \DateTime())
+            ->andWhere('e.libelle = :libelle')
+            ->setParameter('libelle', 'Ouverte')
+        ;
+
+        return $query
+            ->getQuery()
+            ->getResult();
+    }
+    /**
+     * @return Sortie[]|null Returns an array of Sortie objects
+     */
+    public function inProgress() {
+        $today = new \DateTime();
+
+        return $this
+            ->createQueryBuilder('s')
+            ->leftJoin('s.etat', 'e')
+            ->where('s.dateHeureDebut <= :date')
+            ->setParameter('date', $today)
+            ->andWhere('e.libelle = :ouverte OR e.libelle = :cloturee')
+            ->setParameter('ouverte', 'Ouverte')
+            ->setParameter('cloturee', 'Clôturée')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return Sortie[]|null Returns an array of Sortie objects
+     */
+    public function expired() {
+        $today = new \DateTime();
+        $interval = new \DateInterval('P1M');
+        $date = date_sub($today, $interval);
+
+        return $this
+            ->createQueryBuilder('s')
+            ->where('s.dateHeureDebut <= :date')
+            ->setParameter('date', $date)
+            ->getQuery()
+            ->getResult();
     }
 
 

@@ -81,6 +81,11 @@ class Participant implements UserInterface
      */
     private $estInscrit;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $slug;
+
     public function __construct()
     {
         $this->sorties = new ArrayCollection();
@@ -302,6 +307,18 @@ class Participant implements UserInterface
     public function removeEstInscrit(Sortie $estInscrit): self
     {
         $this->estInscrit->removeElement($estInscrit);
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): self
+    {
+        $this->slug = $slug;
 
         return $this;
     }

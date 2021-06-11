@@ -107,24 +107,25 @@
                 <div>
                     {% if app.user.id == sortie.organisateur.id %}
                         {% if sortie.etat.libelle == 'Créée' %}
-                            <a href="#">
-                                <button class="bg-gray-500 rounded-md p-3 px-6 text-white" type="button">
+                            <a href="{{ path('sortie_publier', {'id': sortie.id}) }}">
+                                <button class="bg-gray-700 rounded-md p-3 px-6 text-white" type="button">
                                     Publier
                                 </button>
                             </a>
                             <a href="{{ path('sortie_modifier', {'id': sortie.id}) }}">
-                                <button class="bg-gray-500 rounded-md p-3 px-6 text-white" type="button">
+                                <button class="bg-gray-400 rounded-md p-3 px-6 text-white" type="button">
                                     Modifier
                                 </button>
                             </a>
                             <a href="#">
-                                <button class="bg-gray-500 rounded-md p-3 px-6 text-white" type="button">
+                                <button class="bg-gray-400 rounded-md p-3 px-6 text-white" type="button">
                                     Supprimer
                                 </button>
                             </a>
-                        {% else %}
-                            <a href="#">
-                                <button class="bg-gray-500 rounded-md p-3 px-6 text-white" type="button">
+                        {% endif %}
+                        {% if sortie.etat.libelle == 'Ouverte' or sortie.etat.libelle == 'Clôturée' or sortie.etat.libelle == 'Activité en cours' %}
+                            <a href="{{ path('sortie_annuler', {'id' : sortie.id}) }}">
+                                <button class="bg-gray-400 rounded-md p-3 px-6 text-white" type="button">
                                     Annuler
                                 </button>
                             </a>
@@ -133,37 +134,51 @@
 
 
 
-                    {% if sortie.etat.libelle == 'Ouverte' %}
+                    {% if sortie.etat.libelle == 'Ouverte' and sortie.dateLimiteInscription >= "now" %}
                         {% if sortie.participants.count == 0 %}
                             <a href="{{ path('sortie_inscription', {'id': sortie.id}) }}">
-                                <button class="bg-gray-500 rounded-md p-3 px-6 text-white" type="button">
+                                <button class="bg-gray-700 rounded-md p-3 px-6 text-white" type="button">
                                     S'inscrire
                                 </button>
                             </a>
-                        {% else %}
+
+                        {% endif %}
+
+                        {% set inscrit = false %}
+
+                        {% if sortie.etat.libelle == 'Ouverte' %}
                             {% for participant in sortie.participants %}
-                                {% if participant.id != app.user.id %}
-                                    <a href="{{ path('sortie_inscription', {'id': sortie.id}) }}">
-                                        <button class="bg-gray-500 rounded-md p-3 px-6 text-white" type="button">
-                                            S'inscrire
-                                        </button>
-                                    </a>
+                                {% if participant.id == app.user.id %}
+                                    {% if inscrit == false %}
+                                        {% set inscrit = true %}
+                                    {% endif %}
                                 {% endif %}
                             {% endfor %}
                         {% endif %}
+
+                        {% if inscrit == true %}
+                            <a href="{{ path('sortie_desinscription', {'id': sortie.id}) }}">
+                                <button class="bg-gray-700 rounded-md p-3 px-6 text-white" type="button">
+                                    Se désister
+                                </button>
+                            </a>
+                        {% else %}
+                            <a href="{{ path('sortie_inscription', {'id': sortie.id}) }}">
+                                <button class="bg-gray-700 rounded-md p-3 px-6 text-white" type="button">
+                                    S'inscrire
+                                </button>
+                            </a>
+                        {% endif %}
+
                     {% endif %}
 
-                    {% if sortie.etat.libelle == 'Ouverte' %}
-                        {% for participant in sortie.participants %}
-                            {% if participant.id == app.user.id %}
-                                <a href="{{ path('sortie_desinscription', {'id': sortie.id}) }}">
-                                    <button class="bg-gray-500 rounded-md p-3 px-6 text-white" type="button">
-                                        Se désister
-                                    </button>
-                                </a>
-                            {% endif %}
-                        {% endfor %}
-                    {% endif %}
+
+
+                    <a href="{{ path('sortie_list') }}">
+                        <button class="bg-gray-400 rounded-md p-3 px-6 text-white" type="button">
+                            Retour
+                        </button>
+                    </a>
 
                 </div>
                 {% if sortie.participants.count > 0 %}
@@ -172,7 +187,7 @@
                     <ul class="list-disc">
                         {% for participant in sortie.participants %}
                         <li class="ml-5">
-                            {{ participant.prenom }} {{ participant.nom }}
+                            {{ participant.prenom }} {{ participant.nom | upper }}
                         </li>
                         {% endfor %}
                     </ul>

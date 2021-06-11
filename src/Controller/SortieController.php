@@ -11,6 +11,7 @@ use App\Repository\LieuRepository;
 use App\Repository\ParticipantRepository;
 use App\Repository\SortieRepository;
 use App\SortieService\SortieService;
+use App\SortieUpdate\SortieUpdate;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,13 +23,16 @@ class SortieController extends AbstractController
     /**
      * @Route("/", name="sortie_list")
      */
-    public function list(Request $request, SortieRepository $sortieRepository): Response
+    public function list(Request $request, SortieRepository $sortieRepository, SortieUpdate $sortieUpdate): Response
     {
+        $sortieUpdate->update();
+
         $sortieFilter = new SortieFilter();
         $sortieFilter->setCampus($this->getUser()->getCampus());
         $sortieFilter->setIsOrganisateur(true);
         $sortieFilter->setIsInscrit(true);
         $sortieFilter->setIsNotInscrit(true);
+        $sortieFilter->setUser($this->getUser());
 
         $sortieFilterForm = $this->createForm(SortieFilterType::class, $sortieFilter, [
             'method' => 'GET'
@@ -71,7 +75,7 @@ class SortieController extends AbstractController
 
                 $this->addFlash(
                     'success',
-                    'Sortie modifiée'
+                    'Sortie créée'
                 );
                 return $this->redirectToRoute('sortie_afficher', ['id' => $sortieId]);
 
@@ -230,6 +234,32 @@ class SortieController extends AbstractController
                 'Sortie introuvable');
 
             return $this->redirectToRoute('sortie_afficher', ['id' => $id]);
+
+        }
+
+        /**
+         * @Route("/sortie/{id}/annuler", name="sortie_annuler", requirements={"id"="\d"})
+         */
+        public function annuler($id, SortieService $sortieService, SortieRepository $sortieRepository, ParticipantRepository $participantRepository): Response {
+            $sortie = $sortieRepository->find($id);
+            $participant = $participantRepository->find($this->getUser()->getId());
+
+            if ($sortieService->annuler($sortie, $participant)) {
+
+                $this->addFlash(
+                    'success',
+                    'La sortie '. $sortie->getNom() .' a été annulée !');
+
+                return $this->redirectToRoute('sortie_afficher', ['id' => $id]);
+
+            }
+
+            $this->addFlash(
+                'notice',
+                "Impossible d'annuler la sortie");
+
+            return $this->redirectToRoute('sortie_afficher', ['id' => $id]);
+
 
         }
 

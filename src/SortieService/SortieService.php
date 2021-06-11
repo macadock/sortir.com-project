@@ -14,6 +14,10 @@ class SortieService
 {
     const DRAFT = "Créée";
     const PUBLISH = "Ouverte";
+    const CLOSED = 'Clôturée';
+    const PROGRESS = 'Activité en cours';
+    const FINISHED = 'Passée';
+    const CANCELED = 'Annulée';
 
     private EntityManagerInterface $entityManager;
     private EtatRepository $etatRepository;
@@ -29,7 +33,9 @@ class SortieService
         $result = false;
 
         if ($sortie != null) {
-            if ($sortie->getEtat()->getLibelle() == 'Ouverte') {
+
+
+            if ($this->isStatusPublished($sortie) && $this->isInscriptionAllowed($sortie)) {
 
                 $nbParticipants = $sortie->getParticipants()->count();
 
@@ -42,7 +48,6 @@ class SortieService
             }
 
         }
-
         return $result;
 
     }
@@ -52,6 +57,7 @@ class SortieService
         $nbParticipants = $sortie->getParticipants()->count();
         $participants = $sortie->getParticipants();
         $result = true;
+
 
         for ($i = 0; $i < $nbParticipants; $i++) {
 
@@ -69,13 +75,31 @@ class SortieService
     public function isSortieExpired(Sortie $sortie = null): bool {
 
         $today = new DateTime();
-        $result = true;
+        $result = false;
 
         if ($sortie) {
 
-            if ($sortie->getDateHeureDebut() > $today && $sortie->getDateLimiteInscription() > $today) {
+            if ($sortie->getDateHeureDebut() <= $today) {
 
-                $result = false;
+                $result = true;
+
+            }
+
+        }
+
+        return $result;
+
+    }
+
+    public function isInscriptionAllowed(Sortie $sortie = null): bool {
+
+        $today = new DateTime();
+        $result = false;
+
+        if ($sortie) {
+            if ($sortie->getDateLimiteInscription() >= $today) {
+
+                $result = true;
 
             }
 
@@ -138,6 +162,24 @@ class SortieService
             $result = true;
 
         }
+
+        return $result;
+
+    }
+
+    public function isAnnulable(Sortie $sortie): bool {
+
+        $result = false;
+
+        if ($sortie->getEtat()->getLibelle() == static::PUBLISH ||
+            $sortie->getEtat()->getLibelle() == static::CLOSED ||
+            $sortie->getEtat()->getLibelle() == static::PROGRESS) {
+
+            $result = true;
+
+        }
+
+
 
         return $result;
 
@@ -249,6 +291,29 @@ class SortieService
             $this->entityManager->flush();
 
             $result = true;
+
+        }
+
+        return $result;
+
+    }
+
+    public function annuler(Sortie $sortie, Participant $user): bool {
+
+        $result = false;
+
+        if ($sortie) {
+
+            if ($this->isUserTheOwner($sortie, $user) && $this->isAnnulable($sortie)) {
+
+                $etat = $this->etatRepository->findOneBy(['libelle' => self::CANCELED]);
+                $sortie->setEtat($etat);
+                $this->entityManager->persist($sortie);
+                $this->entityManager->flush();
+
+                $result = true;
+
+            }
 
         }
 
